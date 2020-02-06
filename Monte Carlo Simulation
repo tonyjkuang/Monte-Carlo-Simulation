@@ -1,0 +1,56 @@
+import numpy as np
+
+def prices(n, m, s, seed = None, dt=1/12, p0=100):
+    np.random.seed(seed)
+    a = m*dt
+    b = s*np.sqrt(dt)
+    z = np.random.randn(n)
+    r = a+b*z
+    prices = np.empty(n+1)
+    p0 = prices[0]
+    for i in range(1,n+1):
+        prices[i] = prices[i-1]*(1+r[i-1])
+    return prices
+
+my_prices = prices(60, 0.06, 0.1, 0)
+p0 = my_prices[0:60]
+p1 = my_prices[1:61]
+r = (p1-p0)/p0
+print(r)
+
+my_return = np.mean(r)
+annual_return = my_return * 12 * 100
+std = np.std(r)
+annual_std = std * np.sqrt(12) * 100
+print("\nThe annualized return is " + str(annual_return) + "%")
+print("\nThe annualized standard deviation is " + str(annual_std) + "%")
+
+n = 60
+k = 1000
+m = 0.06
+s = 0.1
+
+my_prices = np.empty((n+1,k))
+
+for j in range(k):
+    my_prices[:,j] = prices(n, m, s)
+    
+p0 = my_prices[0:n,:]
+p1 = my_prices[1:n+1,:]
+r2 = (p1-p0)/p0
+       
+r_min = r2.min(axis=1)
+r_max = r2.max(axis=1)
+r_mean = r2.mean(axis=1)
+r_std = r2.std(axis=1)
+
+print("The mean from the distribution should be: " + str(m/12) + "\n") # theoretic value of monthly volatility
+print("Our numerical results are: \n")
+print(r_mean)
+
+print("\nThe volatility from the distribution should be: " + str(s/np.sqrt(12)) + "\n") # theoretic value of monthly volatility
+print("Our numerical results are: \n")
+print(r_std)
+
+print("\nThe max return at each 60-month data set is " + str(r_max))
+print("\nThe min return at each 60-month data set is " + str(r_min))
